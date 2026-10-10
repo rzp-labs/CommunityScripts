@@ -1,9 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Modified by nehpz <admin@rzp.one>, 2026-10-10:
+# discover the venv package path and stop on pip failure. See NOTICE.md.
 import shutil
 import sys, json, sysconfig
 from venv import create
 from os.path import abspath
 import subprocess
-import shutil
 
 def main():
 	input = None
@@ -41,23 +43,25 @@ def run(input, output):
 
 def get_download_py_stashapp_tools(PLUGIN_DIR):
 
-	org_packagedir = sysconfig.get_paths()["purelib"]	# /usr/lib/python3.12/site-packages
+	org_packagedir = sysconfig.get_paths()["purelib"]
 
 	used_dir = f"{PLUGIN_DIR}"
 	create(f"{used_dir}/venv/", with_pip=True)
 
-	# where requirements.txt is in same dir as this script
-	subprocess.run([f"{used_dir}/venv/bin/pip", "install", "-r", abspath(f"{used_dir}/packages/stashtools.txt")],stdout=None)
-
-	# venv/lib/python3.11/site-packages/stashapp_tools-
-
-	src = f"{used_dir}/venv/lib/python3.13/site-packages"
-	destination = shutil.copytree(src, org_packagedir,ignore_func,None,shutil.copy2,False,True)
-	fp = open(f'{used_dir}/copydo.txt', 'w+')
-	fp.write("%s\n" % print(destination))
+	venv_python = f"{used_dir}/venv/bin/python"
+	# Use the same interpreter for pip and sysconfig; image versions/layouts can change.
+	# Keep pip's progress on stderr so stdout remains the raw plugin JSON response.
+	subprocess.run([venv_python, "-m", "pip", "install", "-r", abspath(f"{used_dir}/packages/stashtools.txt")], stdout=sys.stderr, check=True)
+	src = subprocess.check_output([venv_python, "-c", "import sysconfig; print(sysconfig.get_paths()['purelib'])"], text=True).strip()
+	if not src:
+		raise RuntimeError("The venv interpreter returned an empty purelib path")
+	destination = shutil.copytree(src, org_packagedir, ignore=ignore_func, dirs_exist_ok=True)
+	with open(f'{used_dir}/copydo.txt', 'w+') as fp:
+		fp.write("%s\n" % destination)
 
 def ignore_func(src, names):
 	return ['env'] if 'env' in names else []
 
 
-main()
+if __name__ == "__main__":
+	main()

@@ -1,0 +1,2 @@
+# Explicit publication allowlist for the rzp-labs maintained feed.
+plugins/PythonToolsInstaller/PythonToolsInstaller.yml

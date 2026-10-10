@@ -1,24 +1,34 @@
-name: Validate Plugins
+name: Validate PythonToolsInstaller
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'plugins/**'
-      - 'themes/**'
   pull_request:
     branches: [main]
     paths:
-      - 'plugins/**'
-      - 'themes/**'
+      - 'plugins/PythonToolsInstaller/**'
+      - 'tests/**'
+      - 'tools/package_plugin.py'
+      - 'build_site.sh'
+      - 'publication-plugins.txt'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: ['3.13', '3.14']
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-    - run: cd ./validator && yarn install --frozen-lockfile
-    - run: node ./validate.js --ci
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Test/package the reviewed PR head rather than GitHub's synthetic merge.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m unittest discover -s tests -v
