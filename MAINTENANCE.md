@@ -5,9 +5,13 @@ Only PythonToolsInstaller is maintained/published here; the upstream catalog is
 retained for history and is excluded by `publication-plugins.txt`.
 
 The repair is tracked by Linear VEX-89. Codex assisted its implementation.
-The upstream contribution requirements for disclosure, human review and human
-testing apply. A draft PR and locally generated candidate ZIP are review
-materials; neither publishes a release or enables a live migration.
+The upstream README's conditions for human code review and human testing govern
+contributions submitted to stashapp/CommunityScripts. Publication from this fork
+follows the user's scoped authorization and the coordinating task's explicit
+independent review clearance. Automated reviews and agent-executed tests must be
+reported as such; they do not constitute human review or human testing. A draft
+PR and locally generated candidate ZIP are review materials; neither publishes
+a release or enables a live migration.
 
 ## Validate and reproduce a committed candidate
 
@@ -32,9 +36,10 @@ resolved by pip at installation, matching upstream behavior.
 ## Release after independent review
 
 1. Review the exact PR head and candidate ZIP, including tests and package hashes.
-   Complete human review/testing before publication; do not publish an unreviewed
-   package. If merging changes the commit, rebuild and inspect its new provenance
-   and ZIP hash before release.
+   Obtain explicit independent review clearance from the coordinating task before
+   publication. Identify automated review and agent-executed tests accurately.
+   If merging changes the commit, rebuild and inspect its new provenance and ZIP
+   hash before release.
 2. Enable repository Actions and configure GitHub Pages to use GitHub Actions if
    needed. Merge the reviewed source. Create a tag such as
    `pythontoolsinstaller-v0.1.4` at that exact reviewed release commit and publish
