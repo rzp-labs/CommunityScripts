@@ -35,9 +35,10 @@ buildPlugin()
 
     echo "Processing $plugin_id"
 
-    # create a directory for the version
-    version=$(git log -n 1 --pretty=format:%h -- "$dir")
-    updated=$(TZ=UTC0 git log -n 1 --date="format-local:%F %T" --pretty=format:%ad -- "$dir")
+    # SOURCE.json embeds HEAD, and root docs/build/tests are also shipped.
+    # Every new source commit must therefore identify a distinct feed version.
+    version=$(git rev-parse HEAD)
+    updated=$(TZ=UTC0 git show -s --date="format-local:%F %T" --format=%cd "$version")
     
     # Create a deterministic archive from tracked files at this exact commit.
     zipfile="$outdir/$plugin_id.zip"
